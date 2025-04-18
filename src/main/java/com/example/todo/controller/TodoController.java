@@ -9,11 +9,7 @@ import java.util.List;
 @RequestMapping("/api/todos")
 public class TodoController {
 
-    private final List<String> todos = new ArrayList<>(List.of(
-        "📌 Learn GitHub Actions",
-        "🚀 Deploy to Kubernetes via Minikube",
-        "✅ Add root endpoint for health check"
-    ));
+    private final List<String> todos = new ArrayList<>();
 
     @GetMapping
     public List<String> getTodos() {
