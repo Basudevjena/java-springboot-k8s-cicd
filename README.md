@@ -1,152 +1,162 @@
-# ☑️ Java Spring Boot TODO App — Docker | GitHub Actions | Kubernetes 🚀
+# 📦 Java Spring Boot Kubernetes CI/CD Pipeline
 
-Welcome to the **Java Spring Boot TODO App** — a complete end-to-end project demonstrating modern DevOps practices using:
-- ✅ Java + Spring Boot (RESTful API)
-- 🐳 Docker for containerization
-- ⚙️ GitHub Actions for CI/CD
-- ☸️ Kubernetes manifests for production-like deployments (Minikube/EKS/GKE)
+![CI/CD](https://github.com/BharathKumarReddy2103/java-springboot-k8s-cicd/actions/workflows/ci-cd.yml/badge.svg)
+
+> A complete end-to-end DevOps project demonstrating Java, Docker, Kubernetes, and GitHub Actions CI/CD — built and maintained by [Bharath Kumar Reddy](https://github.com/BharathKumarReddy2103) 🧑‍💻
+
+![Banner](https://github.com/BharathKumarReddy2103/java-springboot-k8s-cicd/blob/main/assets/banner.png)
 
 ---
 
-## 📦 Project Structure
+## 🚀 Project Overview
+
+- ✅ Java Spring Boot Application exposing `/api/todos` endpoint
+- 🐳 Dockerized and published to Docker Hub
+- 🔄 CI/CD pipeline powered by **GitHub Actions**
+- ☸️ Deployed to Kubernetes (Minikube)
+- 💡 Fully automated build → push → deploy on every `git push`
+
+---
+
+## 📁 Project Structure
 
 ```
 java-springboot-k8s-cicd/
-├── .github/workflows/ci-cd.yml        # GitHub Actions CI/CD Pipeline
-├── Dockerfile                         # Docker container build
-├── pom.xml                            # Maven config for Spring Boot
-├── src/main/java/...                  # Java source code
+├── src/main/java/com/example/todo/
+│   ├── TodoApplication.java
+│   └── controller/TodoController.java
 ├── k8s/
-│   ├── deployment.yaml                # Kubernetes deployment
-│   └── service.yaml                   # Kubernetes service
+│   ├── deployment.yaml
+│   └── service.yaml
+├── .github/workflows/ci-cd.yml
+├── Dockerfile
+├── pom.xml
 └── README.md
 ```
 
 ---
 
-## 🔧 Tech Stack Used
+## 🛠️ Tech Stack
 
-| Tool/Tech         | Purpose                            |
-|-------------------|------------------------------------|
-| Java 17           | Backend language                   |
-| Spring Boot       | REST API framework                 |
-| Maven             | Build tool                         |
-| Docker            | Containerization                   |
-| GitHub Actions    | CI/CD automation                   |
-| Kubernetes        | Container orchestration            |
-| Minikube/EKS/GKE  | Cluster deployment options         |
-
----
-
-## 🚀 Features
-
-- ✅ Create and retrieve TODOs via REST API
-- ✅ Containerized using Docker
-- ✅ Automated CI/CD with GitHub Actions
-- ✅ Auto-deploy to Kubernetes cluster
-- ✅ Ready for Minikube, AWS EKS, or GKE
-
----
-
-## 📥 Prerequisites
-
-- Java 17+
-- Maven
+- Java 17 + Spring Boot
 - Docker
-- GitHub account
-- Kubernetes cluster (Minikube, EKS, or GKE)
-- `kubectl` CLI configured
+- GitHub Actions
+- Kubernetes (Minikube)
+- Self-hosted GitHub Actions runner
 
 ---
 
-## 🛠️ Setup Instructions
+## 🧪 API Endpoints
 
-### 🔨 1. Clone & Build
+- `GET /api/todos` – Get all todos
+- `POST /api/todos` – Add a new todo (string)
 
-```bash
-git clone https://github.com/BharathKumarReddy2103/java-springboot-k8s-cicd.git
-cd java-springboot-k8s-cicd
-mvn clean package
+---
+
+## 🔁 CI/CD Workflow
+
+### Trigger:
+- On every `push` to the `main` branch
+
+### Pipeline Stages:
+1. **Checkout**: Pull latest code from GitHub
+2. **Build**: Compile Spring Boot app with Maven
+3. **Dockerize**: Build Docker image (no cache)
+4. **Push**: Upload image to Docker Hub
+5. **Deploy**: Restart Kubernetes deployment via `kubectl`
+
+---
+
+## 📦 Dockerfile
+
+```Dockerfile
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY target/todo-app.jar todo-app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "todo-app.jar"]
 ```
 
 ---
 
-### 🐳 2. Build & Push Docker Image
+## ⚙️ Kubernetes Manifests
 
-```bash
-docker build -t <your-dockerhub-username>/todo-app:latest .
-docker push <your-dockerhub-username>/todo-app:latest
+- **Deployment**: `k8s/deployment.yaml`
+  - Uses image: `docker.io/your-username/todo-app:latest`
+  - `imagePullPolicy: Always`
+- **Service**: `k8s/service.yaml`
+  - NodePort service to expose the app via Minikube IP
+
+---
+
+## 🤖 GitHub Actions Workflow
+
+```yaml
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-test-deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - run: mvn clean package
+      - run: cp target/*.jar target/todo-app.jar
+      - run: docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/todo-app:latest .
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker push ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
+      - run: |
+          kubectl rollout restart deployment todo-app
+          kubectl rollout status deployment todo-app
 ```
 
 ---
 
-### ☸️ 3. Deploy to Kubernetes
+## 🔐 GitHub Secrets Used
+
+| Secret Name         | Description                        |
+|---------------------|------------------------------------|
+| `DOCKER_USERNAME`   | Your Docker Hub username           |
+| `DOCKER_PASSWORD`   | Your Docker Hub password or PAT    |
+
+---
+
+## 🖥️ Minikube Access
+
+To access the deployed app:
 
 ```bash
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/service.yaml
+minikube service todo-service
 ```
 
-Check service:
+Or test with:
+
 ```bash
-kubectl get svc
+curl http://<minikube-ip>:<node-port>/api/todos
 ```
 
 ---
 
-### ⚙️ 4. GitHub Actions CI/CD Setup
-
-1. Go to your GitHub repo → Settings → Secrets → Actions
-2. Add the following repository secrets:
-
-| Name               | Description                          |
-|--------------------|--------------------------------------|
-| `DOCKER_USERNAME`  | Your Docker Hub username             |
-| `DOCKER_PASSWORD`  | Your Docker Hub password or PAT      |
-
-> GitHub Actions will now build, test, push image, and deploy to K8s on every push to `main`.
-
----
-
-## 🔗 API Endpoints
-
-- `GET /api/todos` → View all TODOs
-- `POST /api/todos` → Add a new TODO
-
----
-
-## 📚 Learnings & Highlights
-
-- Set up end-to-end CI/CD from scratch using GitHub Actions
-- Dockerized a Java Spring Boot app
-- Used `kubectl` to deploy onto Kubernetes
-- Managed pipeline secrets and automated builds
-
----
-
-## 🧠 Future Improvements
-
-- Use Helm charts instead of raw YAML
-- Add MongoDB or MySQL backend
-- Add authentication using Spring Security
-- Add Ingress controller + TLS certs
-
----
-
-## 🤝 Contribute
-
-Feel free to fork, try the setup, and raise PRs to improve the app or CI/CD flow.
-
----
-
-## 🙋‍♂️ Author
+## 👨‍💻 Author
 
 **Bharath Kumar Reddy**  
 Senior DevOps & Cloud Engineer  
-[LinkedIn](https://www.linkedin.com/in/bharath-kumar-reddy2103/) | [GitHub](https://github.com/BharathKumarReddy2103)
+🔗 [GitHub](https://github.com/BharathKumarReddy2103)  
+🔗 [LinkedIn](https://www.linkedin.com/in/bharath-kumar-reddy2103/)
 
 ---
 
-## ⭐ Show Your Support
+## ⭐️ Show Your Support
 
-If you liked this project, don’t forget to ⭐ star the repo and share it on LinkedIn.
+If you found this helpful:
+- 🌟 Star this repo
+- 🍴 Fork and try it yourself
+- ✅ Follow me for more DevOps projects
