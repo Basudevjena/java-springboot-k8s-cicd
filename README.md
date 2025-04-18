@@ -4,7 +4,7 @@
 
 > A complete end-to-end DevOps project demonstrating Java, Docker, Kubernetes, and GitHub Actions CI/CD — built and maintained by [Bharath Kumar Reddy](https://github.com/BharathKumarReddy2103) 🧑‍💻
 
-![Banner](https://github.com/BharathKumarReddy2103/java-springboot-k8s-cicd/blob/main/assets/banner.png)
+![Banner](https://raw.githubusercontent.com/BharathKumarReddy2103/java-springboot-k8s-cicd/main/assets/banner.png)
 
 ---
 
