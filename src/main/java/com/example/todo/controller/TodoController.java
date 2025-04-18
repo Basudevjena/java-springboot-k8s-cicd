@@ -1,12 +1,12 @@
-package com.example.todo.controller;
-
-import org.springframework.web.bind.annotation.*;
-import java.util.*;
-
 @RestController
 @RequestMapping("/api/todos")
 public class TodoController {
-    private final List<String> todos = new ArrayList<>();
+
+    private final List<String> todos = new ArrayList<>(List.of(
+        "📌 Learn GitHub Actions",
+        "🚀 Deploy to Kubernetes via Minikube",
+        "✅ Add root endpoint for health check"
+    ));
 
     @GetMapping
     public List<String> getTodos() {
@@ -19,4 +19,3 @@ public class TodoController {
         return "Added: " + todo;
     }
 }
-
